@@ -1,0 +1,303 @@
+---
+title: "Assignment 4 - Real Estate"
+author: "Bharath Dasari"
+date: "21/09/2021"
+output: html_document
+---
+
+Data Cleansing
+```{r}
+library(readxl)
+REAL_ESTATE_SALES_DATA <- read_excel("REAL ESTATE SALES DATA.xlsx")
+View(REAL_ESTATE_SALES_DATA)
+real.estate<- as.data.frame(REAL_ESTATE_SALES_DATA)
+str(real.estate)
+```
+```{r}
+real.estate$Pool<- as.factor(real.estate$Pool)
+real.estate$AC<- as.factor(real.estate$AC)
+real.estate$Highway<- as.factor(real.estate$Highway)
+real.estate$Quality<-as.factor(real.estate$Quality)
+str(real.estate)
+View(real.estate)
+```
+
+## Cumulative Logit model
+
+```{r}
+library(ordinal)
+attach(real.estate)
+model.fit1<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway)
+summary(model.fit1)
+```
+
+Important Predictors:<br>
+1.Sales price<br>
+2.Square feet<br>
+3.Bedrooms<br>
+4.Bathrooms<br>
+5.AC<br>
+6.Year<br>
+
+
+Interpretation of Coefficients:<br>
+
+1.	For every unit increase in Sales price the odds of quality of construction being on higher quality changes multiplicatively by a factor of 0.999980340193257 controlling for other variables.<br>
+2.	For every unit increase in square feet the odds of quality of construction being on higher quality changes multiplicatively by a factor of 0.998570023392284 controlling for other variables.<br>
+3.	For every unit increase in number of Bedrooms the odds of quality of construction being on higher quality changes multiplicatively by a factor of 1.69045884837909 controlling for other variables.<br>
+4.	For every unit increase in number of Bathrooms the odds of quality of construction being on higher quality changes multiplicatively by a factor of 0.406000860469356 controlling for other variables.<br>
+5.	For every availability of AC, the odds of quality of construction being on higher quality changes multiplicatively by a factor of 0.307586171030328 controlling for other variables.<br>
+6.	For every unit increase in the no of cars in Garage the odds of quality of construction being on higher quality changes multiplicatively by a factor of 0.582049373882101 controlling for other variables.<br>
+7.	For every availability of Pool, the odds of quality of construction being on higher quality changes multiplicatively by a factor of 1.48839744368959 controlling for other variables.<br>
+8.	For every increase in Year the odds of quality of construction being on higher quality changes multiplicatively by a factor of 0.943140514024583 controlling for other variables.<br>
+
+
+
+
+
+
+
+```{r}
+ctable <- coef(summary(model.fit1))
+p <- round(pnorm(abs(ctable[, "z value"]), lower.tail = FALSE) * 2, digits = 3)
+ctable <- cbind(ctable, "p-value" = p)
+ci <- confint.default(model.fit1)
+ctable <- cbind(ctable, round(exp(cbind(OR = coef(model.fit1), ci)), digits = 3))
+ctable
+```
+
+1.Sales Price
+```{r}
+model.fit2<- clm(as.factor(Quality) ~ `Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway,data=real.estate)
+anova(model.fit1,model.fit2)
+```
+
+Ho: Sales Price is not a significant variable<br>
+Ha: Sales Price is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Sales Price is a  significant variable.<br>
+
+2.Square feet
+```{r}
+model.fit3<- clm(as.factor(Quality) ~ `Sales price`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway)
+anova(model.fit1,model.fit3)
+```
+Ho: Square feet is not a significant variable<br>
+Ha: Square feet is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Square feet is a  significant variable.<br>
+
+
+
+
+3.Bedrooms
+```{r}
+model.fit4<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway)
+anova(model.fit1,model.fit4)
+```
+Ho: Bedrooms is not a significant variable<br>
+Ha: Bedrooms is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Bedrooms is a  significant variable.<br>
+
+
+
+4.Bathrooms
+```{r}
+model.fit5<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway)
+anova(model.fit1,model.fit5)
+```
+Ho: Bathrooms is not a significant variable<br>
+Ha: Bathrooms is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Bathrooms is a  significant variable.<br>
+
+5.AC
+```{r}
+model.fit6<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+
+                   Garage+Pool+Year+`lot size`+Highway)
+anova(model.fit1,model.fit6)
+```
+Ho: AC is not a significant variable<br>
+Ha: AC  is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Bathrooms is a  significant variable.<br>
+
+
+6.Garage
+```{r}
+model.fit7<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Pool+Year+`lot size`+Highway)
+anova(model.fit1,model.fit7)
+```
+Ho: Garage is not a significant variable<br>
+Ha: Garage  is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, Garage is a not significant variable.<br>
+
+
+
+7.Pool
+```{r}
+model.fit8<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Year+`lot size`+Highway)
+anova(model.fit1,model.fit8)
+```
+Ho: Pool is not a significant variable<br>
+Ha: Pool is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, Pool is a not significant variable.<br>
+
+
+8.Year
+```{r}
+model.fit9<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+`lot size`+Highway)
+anova(model.fit1,model.fit9)
+```
+Ho: Year is not a significant variable<br>
+Ha: Year is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Year is a significant variable.<br>
+
+9.lot size
+```{r}
+model.fit10<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+Highway)
+anova(model.fit1,model.fit10)
+```
+Ho: lot size is not a significant variable<br>
+Ha: lot size is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, lot size is a not significant variable.<br>
+
+10.Highway
+```{r}
+model.fit11<- clm(as.factor(Quality) ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`)
+anova(model.fit1,model.fit11)
+```
+Ho: Highway is not a significant variable<br>
+Ha: Highway is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, Highway is a not significant variable.<br>
+
+
+Predictors to be retained are: <br>
+Important Predictors:<br>
+1.Sales price<br>
+2.Square feet<br>
+3.Bedrooms<br>
+4.Bathrooms<br>
+5.AC<br>
+6.Year<br>
+
+
+Backward elimination method:
+
+```{r}
+library(bootStepAIC)
+stepAIC(model.fit1,direction = "backward")
+```
+
+
+
+```{r}
+mod.reduced<-clm(as.factor(Quality) ~ `Sales price` + `Square feet` + Bedrooms + Bathrooms + AC + Garage + Year, data=real.estate)
+summary(mod.reduced)
+```
+
+
+
+```{r}
+anova(model.fit1 , mod.reduced , type = 1)
+
+```
+Variables to be retained:<br>
+Sales price<br>
+Square feet<br>
+Bedrooms<br>
+Bathrooms<br>
+AC<br>
+Year<br>
+
+
+
+## Binary Logistic Regression Model
+
+```{r}
+
+estate.data<- as.data.frame(REAL_ESTATE_SALES_DATA)
+estate.data$Pool<- as.factor(estate.data$Pool)
+estate.data$AC<- as.factor(estate.data$AC)
+estate.data$Highway<- as.factor(estate.data$Highway)
+library(car)
+
+estate.data$Quality_High <- recode(estate.data$Quality,"1=1;c(2,3)=0")
+estate.data$Quality_Medium <- recode(estate.data$Quality,"2=1;c(1,3)=0")
+estate.data$Quality_Low <- recode(estate.data$Quality,"3=1;c(1,2)=0")
+str(estate.data)
+View(estate.data)
+
+```
+
+```{r}
+attach(estate.data)
+model.bin1<- glm(Quality_High ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway,family = binomial(link = "logit"))
+summary(model.bin1)
+```
+
+
+```{r}
+model.bin2<- glm(Quality_Medium ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway,family = binomial(link = "logit"))
+summary(model.bin2)
+```
+
+
+```{r}
+model.bin3<- glm(Quality_Low ~ `Sales price`+`Square feet`+Bedrooms+Bathrooms+AC+
+                   Garage+Pool+Year+`lot size`+Highway,family = binomial(link = "logit"))
+summary(model.bin3)
+```
+Comparison of slope<br>
+Variable	        Cumulative	Binary:High Quality 	Binary:Medium Quality	 Binary: Low Quality<br>
+Sales price	      -0.000020	    0.00002	           -0.00001	              -0.000013<br>
+Square feet	      -0.001431	    0.00093	            0.00052	              -0.002710<br>
+Bedrooms	         0.525000	   -0.56660	            0.08308	               0.583400<br>
+Bathrooms	        -0.901400	    0.40250	            1.08200	              -1.423000<br>
+AC1	              -1.179000	    16.74000	          1.55100	              -1.013000<br>
+Garage	          -0.541200	    0.85700	           -0.07346	              -0.422900<br>
+Pool1	             0.397700	   -0.38680	            0.06034	               0.941400<br>
+Year	            -0.058540	    0.00790	            0.03748	              -0.081500<br>
+lot size	        -0.000001	   -0.00002	            0.00004	              -0.000003<br>
+Highway1	        -0.433600	    1.45400	           -0.34630	               0.113300<br>
+
+
+
+## Final Model
+
+```{r}
+mod.final<-clm(as.factor(Quality) ~ `Sales price` + `Square feet` + Bedrooms + Bathrooms + AC + Year + Year, data=real.estate)
+summary(mod.final)
+```
+
+
+
+

@@ -1,0 +1,400 @@
+---
+title: "Assignment 4"
+author: "Bharath Dasari"
+date: "21/09/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(readxl)
+CDI_DATA <- read_excel("CDI DATA.xlsx")
+View(CDI_DATA)
+
+data<- as.data.frame(CDI_DATA)
+str(data)
+```
+
+Data Cleansing
+```{r}
+library(car)
+#data$Region <- as.factor(data$Region)
+data$Region_NE <- recode(data$Region,"1=1;c(2,3,4)=0")
+data$Region_NC <- recode(data$Region,"2=1;c(1,3,4)=0")
+data$Region_S <- recode(data$Region,"3=1;c(1,2,4)=0")
+data$Region_W <- recode(data$Region,"4=1;c(1,3,2)=0")
+data$PopulationDensity <-  data$`Total Population`/data$`Land area`
+str(data)
+```
+
+## Baseline Category Logit model with 1=NE as the baseline category
+```{r}
+library(VGAM)
+attach(data)
+fit.m1<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+summary(fit.m1)
+```
+Interpretation of variables:
+
+1.	For each unit increase in Population density of a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  0.999794321154794 controlling for other variables.
+
+2.	For each unit increase in Population density of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.99963526653143 controlling for other variables.
+
+3.	For each unit increase in Population density of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  0.999332223062329 controlling for other variables.
+
+4.	For each unit increase in POP aged 18-34 of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  0.955481382552257 controlling for other variables.
+
+5.	For each unit increase in POP aged 18-34 of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.911011279818736 controlling for other variables.
+
+6.	For each unit increase in POP aged 18-34 of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  0.798436371129949 controlling for other variables.
+
+7.	For each unit increase in POP 65 or older of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  0.852740498442439 controlling for other variables.
+
+8.	For each unit increase in POP 65 or older of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.980924288769611 controlling for other variables.
+
+9.	For each unit increase in POP 65 or older of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  0.883379840882751 controlling for other variables.
+
+10.	For each unit increase in Physicians of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  0.999586285603412 controlling for other variables.
+
+11.	For each unit increase in Physicians of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.999671953818919 controlling for other variables.
+12.	For each unit increase in Physicians of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  1.00156121743298 controlling for other variables.
+
+13.	For each unit increase in Hospital Beds of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  1.0005061280396 controlling for other variables.
+
+14.	For each unit increase in Hospital Beds of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.999330923931283 controlling for other variables.
+
+15.	For each unit increase in Hospital Beds of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  0.997100212529285 controlling for other variables.
+
+16.	For each unit increase in Crimes of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  0.99998247015365 controlling for other variables.
+
+17.	For each unit increase in Crimes of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  1.00001764015559 controlling for other variables.
+
+18.	For each unit increase in Crimes of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  1.00004468099817 controlling for other variables.
+
+19.	For each unit increase in High school graduates of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  1.32511599632152 controlling for other variables.
+
+20.	For each unit increase in High school graduates of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.895117754578785 controlling for other variables.
+
+21.	For each unit increase in High school graduates of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  1.42432782403152 controlling for other variables.
+
+22.	For each unit increase in Bachelor degrees of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  0.813182270179046 controlling for other variables.
+
+23.	For each unit increase in Bachelor degrees of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  1.16009279777443 controlling for other variables.
+
+24.	For each unit increase in Bachelor degrees of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  0.944395725438798 controlling for other variables.
+
+25.	For each unit increase in Below poverty level of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  1.55550460840026 controlling for other variables.
+
+26.	For each unit increase in Below poverty level of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  1.71669340222859 controlling for other variables.
+
+27.	For each unit increase in Below poverty level of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  2.23960609509626 controlling for other variables.
+
+28.	For each unit increase in Unemployment of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  0.689492127160731 controlling for other variables.
+
+29.	For each unit increase in Unemployment of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.516076638657093 controlling for other variables.
+
+30.	For each unit increase in Unemployment of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  0.848657151921587 controlling for other variables.
+
+31.	For each unit increase in Percapita income of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  1.00006544214124 controlling for other variables.
+
+32.	For each unit increase in Percapita income of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  0.999881307044566 controlling for other variables.
+33.	For each unit increase in Percapita income of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  0.999916953448556 controlling for other variables.
+
+34.	For each unit increase in Personal income of a county in a county in NC region wrt to county in NE region,  the cumulative odds of county in the NE region being more popular than the county in NC region changes multiplicatively by a factor of  1.00003617065414 controlling for other variables.
+
+35.	For each unit increase in Personal income of a county in S region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in S region changes multiplicatively by a factor of  1.00008897395795 controlling for other variables.
+
+36.	For each unit increase in Personal income of a county in W region wrt to NE region,  the cumulative odds of county in the NE region being more popular than the county in W region changes multiplicatively by a factor of  1.00016251320384 controlling for other variables.
+
+
+
+
+
+
+Liklihood Ratio tests:
+
+1.Without PopulationDensity
+```{r}
+fit.m2<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~  `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m2 , type = 1)
+```
+Ho: Population Density is not a significant variable<br>
+Ha: Population Density is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Population Density is a significant variable.
+
+
+2.Without POP aged 18-34
+```{r}
+fit.m3<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity +  `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m3 , type = 1)
+```
+Ho: POP aged 18-34 is not a significant variable<br>
+Ha: POP aged 18-34 is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, POP aged 18-34 is not a significant variable.<br>
+
+
+3.Without POP 65 or older
+```{r}
+fit.m4<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34`  +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m4 , type = 1)
+```
+Ho: POP 65 or older is not a significant variable<br>
+Ha: POP 65 or older is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, POP 65 or older is not a significant variable.<br>
+
+4.Without Physicians
+```{r}
+fit.m5<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+                `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m5 , type = 1)
+```
+Ho: Physicians is not a significant variable<br>
+Ha: Physicians is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, Physicians is not a significant variable.<br>
+
+5.Without Hospital Beds
+```{r}
+fit.m6<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians  + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m6 , type = 1)
+```
+Ho: Hospital Beds is not a significant variable<br>
+Ha: Hospital Beds is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Hospital Beds is a significant variable.<br>
+
+6.Without Crimes
+```{r}
+fit.m7<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds`  + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m7 , type = 1)
+```
+Ho: Crimes is not a significant variable<br>
+Ha: Crimes is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Crimes is a significant variable.<br>
+
+7.Without High school graduates
+```{r}
+fit.m8<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes +  `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m8 , type = 1)
+```
+Ho: High school graduates is not a significant variable<br>
+Ha: High school graduates is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, High school graduates is a significant variable.<br>
+
+8.Without Bachelor degrees
+```{r}
+fit.m9<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m9 , type = 1)
+```
+Ho: Bachelor degrees is not a significant variable<br>
+Ha: Bachelor degrees is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Bachelor degrees is a significant variable.<br>
+
+9.Without Below poverty level
+```{r}
+fit.m10<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+                Unemployement + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m10 , type = 1)
+```
+Ho: Below poverty level is not a significant variable<br>
+Ha: Below poverty level is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Below poverty level is a significant variable.<br>
+
+10.Without Unemployement
+```{r}
+fit.m11<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level`  + `Percapita income` + `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m11 , type = 1)
+```
+Ho: Unemployement is not a significant variable<br>
+Ha: Unemployement level is a significant variable<br>
+
+Since p-value is less than α = 0.01, we reject Ho.<br>
+Therefore, Unemployement is a significant variable.<br>
+
+11.Without Percapita income
+```{r}
+fit.m12<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement +  `Personal income` ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m12 , type = 1)
+```
+Ho: Percapita income is not a significant variable<br>
+Ha: Percapita income level is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, Percapita income is a not significant variable.<br>
+
+12.Without Personal income
+```{r}
+fit.m13<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income`  ,
+             family = multinomial, data=data)
+anova(fit.m1 , fit.m13 , type = 1)
+```
+Ho: Personal income is not a significant variable<br>
+Ha: Personal income level is a significant variable<br>
+
+Since p-value is greater than α = 0.01, we fail to reject Ho.<br>
+Therefore, Personal income is not a significant variable.<br>
+
+Predictors those should be retained are:<br>
+Population Density<br>
+Hospital Beds<br>
+Crimes<br>
+High school graduates<br>
+Bachelor degrees<br>
+Below poverty level<br>
+Unemployement<br>
+
+
+
+## Binary logistic regressions
+```{r}
+fit.b.1<-glm(Region_NC
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = binomial(link = "logit"), data=data)
+summary(fit.b.1)
+```
+
+
+```{r}
+fit.b.2<-glm(Region_S
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = binomial(link = "logit"), data=data)
+summary(fit.b.2)
+```
+
+
+```{r}
+fit.b.3<-glm(Region_W
+             ~ PopulationDensity + `POP aged 18-34` + `POP 65 or older` +
+               Physicians + `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement + `Percapita income` + `Personal income` ,
+             family = binomial(link = "logit"), data=data)
+summary(fit.b.3)
+```
+
+Comparison of slope coefficients wrt to baseline model<br>
+<br>
+Variable	                        Baseline	Binary<br>
+PopulationDensity - NC region	    -0.00021	-0.00010<br>
+PopulationDensity - S region	    -0.00036	-0.00028<br>
+PopulationDensity - W region	    -0.00067	-0.00053<br>
+POP aged 8-34 - NC region	        -0.04554  0.07972<br>
+POP aged 8-34 - S region	        -0.09320	0.01249<br>
+POP aged 8-34 - W region	        -0.22510	-0.14250<br>
+POP 65 or older - NC region  	    -0.15930	-0.10020<br>
+POP 65 or older - S region  	    -0.01926	0.05599<br>
+POP 65 or older - W region	      -0.12400	-0.03851<br>
+Physicians - NC region	          -0.00041	-0.00060<br>
+Physicians - S region       	    -0.00033	-0.00056<br>
+Physicians - W region	             0.00156	0.00166<br>
+Hospital Beds - NC region	         0.00051	0.00137<br>
+Hospital Beds - S region	        -0.00067	-0.00001<br>
+Hospital Beds - W region	        -0.00290	-0.00250<br>
+Crimes - NC region	              -0.00002	-0.00003<br>
+Crimes - S region	                0.00002	0.00002<br>
+Crimes - W region	                0.00004	0.00004<br>
+High school graduates-NC region	  0.28150	0.24940<br>
+High school graduates-S region	 -0.11080	-0.26020<br>
+High school graduates-W region	  0.35370	0.31000<br>
+Bachelor degrees - NC region	   -0.20680	-0.01304<br>
+Bachelor degrees - S region	      0.14850	0.18180<br>
+Bachelor degrees - W region	     -0.05721	-0.07326<br>
+Below poverty level-NC region	    0.44180	-0.01558<br>
+Below poverty level-S region	    0.54040	0.10650<br>
+Below poverty level-W region	    0.80630	0.31010<br>
+Unemployement - NC region	       -0.37180	-0.07637<br>
+Unemployement - S region	       -0.66150	-0.46980<br>
+Unemployement - W region	       -0.16410	0.23970<br>
+Percapita income - NC region	    0.00007	0.00016<br>
+Percapita income - S region      -0.00012	-0.00007<br>
+Percapita income - W region	     -0.00008	-0.00006<br>
+Personal income - NC region	      0.00004	-0.000046<br>
+Personal income - S region	      0.00009	-0.00001<br>
+Personal income - W region	      0.00016	0.00010<br>
+<br>
+
+
+
+
+## optimal Baseline Category Logit model
+```{r}
+fit.final<-vglm(cbind(Region_NC,Region_S,Region_W,Region_NE)
+             ~ PopulationDensity + 
+              `Hospital Beds` + Crimes + `High school graduates` + `Bachelor degrees` +
+               `Below poverty level` + Unemployement ,
+             family = multinomial, data=data)
+summary(fit.final)
+```
+
+
+
+
